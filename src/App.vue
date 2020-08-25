@@ -199,11 +199,11 @@
         //Condition which passes only if next number in the row is not undefined(if there is a field in row) or if it is not 0(empty)
 
         if (currentRow[filledIndex + 1] != undefined && currentRow[filledIndex + 1].value != 0) {
-          console.log(divisionResult, 'p+')
+          
           let divisionResult = currentRow[filledIndex].value / currentRow[filledIndex + 1].value;
           //Condition which passes only if the result of division beetwen two number is rounded
           if (divisionResult % 1 == 0) {
-            console.log(divisionResult, 'a+')
+            
             this.score = this.score + currentRow[filledIndex + 1].value * 2;
             currentRow[filledIndex].value = divisionResult;
             currentRow[filledIndex + 1].value = 0;
