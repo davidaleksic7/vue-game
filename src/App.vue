@@ -17,37 +17,27 @@
       <div class="row justify-content-center">
         <div class="col-md-6 col-lg-4 col-9">
           <div class="drop-row">
-            <div v-for="(item,index) in boardRow1">
-              <drop v class="drop" :class="{'activeRow': item.value != 0  }"
-                @dragover="handleDragover(item, 1, ...arguments)" @drop="handleDrop">
-                <div v-if="item.value != 0">
-                  <p> {{item.value}}</p>
-                </div>
-              </drop>
+            <div v-for="(row,rowIndex) in boardRows" style="    display: flex;
+            flex-direction: row;">
+
+              <div v-for="(item,index) in row" :key="index">
+
+                <drop v class="drop" :class="{'activeRow': item.value != 0  }"
+                  @dragover="handleDragover(item, rowIndex, ...arguments)" @drop="handleDrop">
+                  <div v-if="item.value != 0">
+                    <p> {{item.value}}</p>
+                  </div>
+                </drop>
+              </div>
+
             </div>
-            <div v-for="(item,index) in boardRow2">
-              <drop v class="drop" :class="{'activeRow': item.value != 0  }"
-                @dragover="handleDragover(item, 2, ...arguments)" @drop="handleDrop">
-                <div v-if="item.value != 0">
-                  <p> {{item.value  }}</p>
-                </div>
-              </drop>
-            </div>
-            <div v-for="(item,index) in boardRow3">
-              <drop v class="drop" :class="{'activeRow': item.value != 0  }"
-                @dragover="handleDragover(item, 3, ...arguments)" @drop="handleDrop">
-                <div v-if="item.value != 0">
-                  <p> {{item.value}}</p>
-                </div>
-              </drop>
-              </di>
-            </div>
+
           </div>
         </div>
       </div>
-      <div class="row justify-content-center" style="margin-top: 38px;">
+      <div class="row justify-content-center" style="margin-top: 38-px;">
         <div class="col-md-4 col-12 d-flex justify-content-end">
-          <div class="inserting-row" >
+          <div class="inserting-row">
             <div v-for="(number,index) in arrayOfNumbersForPlay">
               <div class="drag" v-if="index < 2">
                 <drag class="drag-box cursor-not-allowed" :transfer-data="{ value:number,index:index }" :draggable=false
@@ -93,15 +83,17 @@
   export default {
     data() {
       return {
-        arrayOfNumbersForPlay: [],
+        arrayOfNumbersForPlay: [4, 20, 5],
         gameOver: false,
         keepNumber: 0,
         keepNumberDragStart: false,
-        boardRow1: [],
+        boardRows: [
+
+        ],
         boardRow2: [],
         boardRow3: [],
         currentDragedIn: 0,
-        currentRowNumber: 0,
+        boardRowIndex: 0,
         scoreAddition: 0,
         score: 0,
         draggable: [
@@ -128,17 +120,18 @@
         }, 0)
       },
       handleDragover(rowData, rowNumber, data, event) {
+
         if (rowData.positionFilled) {
           event.dataTransfer.dropEffect = 'none';
         } else {
 
           this.currentDragedIn = rowData.index;
-          this.currentRowNumber = rowNumber;
+          this.boardRowIndex = rowNumber;
         }
       },
       handleDrop(data) {
 
-        let currentRow = this.resolveRow(this.currentRowNumber);
+        let currentRow = this.boardRows[this.boardRowIndex];
         let filledIndex = this.currentDragedIn;
 
         if (!this.keepNumberDragStart) {
@@ -153,7 +146,7 @@
         currentRow[this.currentDragedIn].value = data.value;
         currentRow[this.currentDragedIn].positionFilled = true;
 
-        this.numbersCalculation(currentRow, filledIndex);
+        this.numbersCalculation(filledIndex, this.boardRowIndex);
         this.checkForEmptyFields();
 
       },
@@ -196,40 +189,90 @@
         return obj;
       },
       //Recursive function that divides two numbers based on their position in board row
-      numbersCalculation(currentRow, filledIndex) {
+      numbersCalculation(filledIndex, boardRowIndex) {
         let filledIndexAfterDivision;
+        let rowIndexAfterDivision;
+        let currentRow = this.boardRows[boardRowIndex];
+        let horizontalRowAbove = this.boardRows[boardRowIndex - 1];
+        let horizontaRowBeneath = this.boardRows[boardRowIndex + 1]
+
+        //Condition which passes only if next number in the row is not undefined(if there is a field in row) or if it is not 0(empty)
+
+        if (currentRow[filledIndex + 1] != undefined && currentRow[filledIndex + 1].value != 0) {
+          console.log(divisionResult, 'p+')
+          let divisionResult = currentRow[filledIndex].value / currentRow[filledIndex + 1].value;
+          //Condition which passes only if the result of division beetwen two number is rounded
+          if (divisionResult % 1 == 0) {
+            console.log(divisionResult, 'a+')
+            this.score = this.score + currentRow[filledIndex + 1].value * 2;
+            currentRow[filledIndex].value = divisionResult;
+            currentRow[filledIndex + 1].value = 0;
+            currentRow[filledIndex + 1].positionFilled = false;
+            filledIndexAfterDivision = currentRow[filledIndex].index
+            rowIndexAfterDivision = boardRowIndex;
+          }
+        }
         //Condition which passes only if previos number in the row is not undefined(if there is a field in row) or if it is not 0(empty)
         if (currentRow[filledIndex - 1] != undefined && currentRow[filledIndex - 1].value != 0) {
+
           let divisionResult = currentRow[filledIndex - 1].value / currentRow[filledIndex].value;
-           //Condition which passes only if the result of division beetwen two number is rounded
+          //Condition which passes only if the result of division beetwen two number is rounded
           if (divisionResult % 1 == 0) {
             this.score = this.score + currentRow[filledIndex].value * 2;
-            currentRow[filledIndex].value = divisionResult;
-            currentRow[filledIndex - 1].value = 0;
-            currentRow[filledIndex - 1].positionFilled = false;
-            filledIndexAfterDivision = currentRow[filledIndex].index
-          }
-        }
-         //Condition which passes only if next number in the row is not undefined(if there is a field in row) or if it is not 0(empty)
-        if (currentRow[filledIndex + 1] != undefined && currentRow[filledIndex + 1].value != 0) {
-          let divisionResult = currentRow[filledIndex].value / currentRow[filledIndex + 1].value;
-           //Condition which passes only if the result of division beetwen two number is rounded
-          if (divisionResult % 1 == 0) {
-            this.score = this.score + currentRow[filledIndex + 1].value * 2;
-            currentRow[filledIndex + 1].value = divisionResult;
+            currentRow[filledIndex - 1].value = divisionResult;
             currentRow[filledIndex].value = 0;
             currentRow[filledIndex].positionFilled = false;
-            filledIndexAfterDivision = currentRow[filledIndex + 1].index
+            filledIndexAfterDivision = currentRow[filledIndex - 1].index
+            currentRow = currentRow[filledIndex - 1];
+            rowIndexAfterDivision = boardRowIndex;
+          }
+         
+        }
+        if (horizontalRowAbove != undefined) {
+           //Condition which passes only if  number in the row above  is not undefined(if there is a field in row) or if it is not 0(empty)
+          if (horizontalRowAbove[filledIndex] != undefined && horizontalRowAbove[filledIndex].value != 0 && currentRow[filledIndex] != undefined) {
+         
+            let divisionResult = horizontalRowAbove[filledIndex].value / currentRow[filledIndex].value;
+            if (divisionResult % 1 == 0) {
+              this.score = this.score + currentRow[filledIndex].value * 2;
+              horizontalRowAbove[filledIndex].value = divisionResult;
+              currentRow[filledIndex].value = 0;
+              currentRow[filledIndex].positionFilled = false;
+              filledIndexAfterDivision = horizontalRowAbove[filledIndex].index
+
+              currentRow = horizontalRowAbove;
+              rowIndexAfterDivision = boardRowIndex - 1;
+            }
           }
         }
-        //Contition that check if there is existing field before or after one of two division operations above,if there is the numbersCalculation() will be called again 
+
+        if (horizontaRowBeneath != undefined) {
+           //Condition which passes only if  number in the row beneath  is not undefined(if there is a field in row) or if it is not 0(empty)
+          if (horizontaRowBeneath[filledIndex] != undefined && horizontaRowBeneath[filledIndex].value != 0 && currentRow[filledIndex] != undefined) {
+
+            let divisionResult = currentRow[filledIndex].value / horizontaRowBeneath[filledIndex].value;
+            if (divisionResult % 1 == 0) {
+              this.score = this.score + horizontaRowBeneath[filledIndex].value * 2;
+              currentRow[filledIndex].value = divisionResult;
+              horizontaRowBeneath[filledIndex].value = 0;
+              horizontaRowBeneath[filledIndex].positionFilled = false;
+              filledIndexAfterDivision = horizontaRowBeneath[filledIndex].index
+
+              rowIndexAfterDivision = boardRowIndex;
+
+            }
+          }
+        }
+
+        // Contition that check if there is existing field before or after one of two division operations above,if there is the numbersCalculation() will be called again 
         if (filledIndexAfterDivision != undefined) {
-          this.numbersCalculation(currentRow, filledIndexAfterDivision)
+
+          this.numbersCalculation(filledIndexAfterDivision, rowIndexAfterDivision)
         }
       },
       //Function that check if there is still empty fields in board ,if not the game is over 
       checkForEmptyFields() {
-        let joinedRows = [...this.boardRow1, ...this.boardRow2, ...this.boardRow3];
+        let joinedRows = [...this.boardRows[0], ...this.boardRows[1], ...this.boardRows[2]];
         let result = joinedRows.filter(item => item.positionFilled == false);
         if (result.length == 0) {
           this.gameOver = true;
@@ -248,28 +291,22 @@
         }
       },
       //Function that creates game board at begining of a new game
-      initializeGameBoard(){
-        for(let i = 0;i < 3;i++){
-          this.boardRow1.push({
-          index: i,
-          value: 0,
-          positionFilled: false
-          })
-        }
-        for(let i = 0;i < 3;i++){
-          this.boardRow2.push({
-          index: i,
-          value: 0,
-          positionFilled: false
-          })
-        }
-        for(let i = 0;i < 3;i++){
-          this.boardRow3.push({
-          index: i,
-          value: 0,
-          positionFilled: false
-          })
-        }
+      initializeGameBoard() {
+
+        for (let iR = 0; iR < 3; iR++) {
+          this.boardRows.push([])
+          for (let i = 0; i < 3; i++) {
+            if (this.boardRows[iR].length < 3) {
+              this.boardRows[iR].push({
+                index: i,
+                rowIndex: iR,
+                value: 0,
+                positionFilled: false
+              })
+            }
+          }
+        };
+
         $('.drag-box-allowed').css('background-color', 'transparent')
         this.fillNumberRow();
       }
@@ -372,7 +409,7 @@
 
   .game-over-banner {
     position: absolute;
-    top:0;
+    top: 0;
     color: white;
     font-size: 30px;
     left: 21px;
@@ -384,41 +421,47 @@
     left: 0;
     z-index: 22;
     background-color: #727272;
-    height:100vh;
+    height: 100vh;
     opacity: 1;
     display: flex;
     justify-content: center;
     align-items: center;
   }
-  .game-over-wrapper{
+
+  .game-over-wrapper {
     width: 582px;
     height: 373px;
     padding: 20px;
     border: 1px solid black;
   }
-  .game-over-wrapper span{
-  padding:0;
+
+  .game-over-wrapper span {
+    padding: 0;
   }
-  .game-over-banner button{
+
+  .game-over-banner button {
     background-color: #1BD9B3;
     border-radius: 4px;
-    border:none;
-    outline:none;
+    border: none;
+    outline: none;
     cursor: pointer;
     width: 300px;
     color: white;
     height: 64px;
   }
-  .keep-number-row{
+
+  .keep-number-row {
     padding-top: 13px;
   }
-.keep-number-row span{
-font-size: 30px;
+
+  .keep-number-row span {
+    font-size: 30px;
     position: absolute;
     color: white;
     top: -32px;
     left: 36px;
-}
+  }
+
   .keep-number-wrapper {
     width: 110px;
     height: 110px;
