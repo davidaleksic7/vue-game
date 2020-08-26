@@ -35,7 +35,8 @@
           </div>
         </div>
       </div>
-      <div class="row justify-content-center" style="margin-top: 38-px;">
+      <div class="row justify-content-center" style="margin-top: 32px;
+      padding-left: 144px;">
         <div class="col-md-4 col-12 d-flex justify-content-end">
           <div class="inserting-row">
             <div v-for="(number,index) in arrayOfNumbersForPlay">
@@ -199,55 +200,102 @@
         //Condition which passes only if next number in the row is not undefined(if there is a field in row) or if it is not 0(empty)
 
         if (currentRow[filledIndex + 1] != undefined && currentRow[filledIndex + 1].value != 0) {
-          
-          let divisionResult = currentRow[filledIndex].value / currentRow[filledIndex + 1].value;
-          //Condition which passes only if the result of division beetwen two number is rounded
-          if (divisionResult % 1 == 0) {
-            
-            this.score = this.score + currentRow[filledIndex + 1].value * 2;
-            currentRow[filledIndex].value = divisionResult;
-            currentRow[filledIndex + 1].value = 0;
-            currentRow[filledIndex + 1].positionFilled = false;
-            filledIndexAfterDivision = currentRow[filledIndex].index
-            rowIndexAfterDivision = boardRowIndex;
+          if (currentRow[filledIndex + 1].value < currentRow[filledIndex].value) {
+            let divisionResult = currentRow[filledIndex].value / currentRow[filledIndex + 1].value;
+            //Condition which passes only if the result of division beetwen two number is rounded
+            if (divisionResult % 1 == 0) {
+              this.score = this.score + currentRow[filledIndex + 1].value * 2;
+              currentRow[filledIndex].value = divisionResult;
+              currentRow[filledIndex + 1].value = 0;
+              currentRow[filledIndex + 1].positionFilled = false;
+              filledIndexAfterDivision = currentRow[filledIndex].index
+              rowIndexAfterDivision = boardRowIndex;
+            }
+          } else {
+            let divisionResult = currentRow[filledIndex + 1].value / currentRow[filledIndex].value;
+            //Condition which passes only if the result of division beetwen two number is rounded
+            if (divisionResult % 1 == 0) {
+              this.score = this.score + currentRow[filledIndex].value * 2;
+              currentRow[filledIndex + 1].value = divisionResult;
+              currentRow[filledIndex].value = 0;
+              currentRow[filledIndex].positionFilled = false;
+              filledIndexAfterDivision = currentRow[filledIndex + 1].index
+              rowIndexAfterDivision = boardRowIndex;
+            }
           }
+
         }
         //Condition which passes only if previos number in the row is not undefined(if there is a field in row) or if it is not 0(empty)
         if (currentRow[filledIndex - 1] != undefined && currentRow[filledIndex - 1].value != 0) {
-
-          let divisionResult = currentRow[filledIndex - 1].value / currentRow[filledIndex].value;
-          //Condition which passes only if the result of division beetwen two number is rounded
-          if (divisionResult % 1 == 0) {
-            this.score = this.score + currentRow[filledIndex].value * 2;
-            currentRow[filledIndex - 1].value = divisionResult;
-            currentRow[filledIndex].value = 0;
-            currentRow[filledIndex].positionFilled = false;
-            filledIndexAfterDivision = currentRow[filledIndex - 1].index
-            currentRow = currentRow[filledIndex - 1];
-            rowIndexAfterDivision = boardRowIndex;
-          }
-         
-        }
-        if (horizontalRowAbove != undefined) {
-           //Condition which passes only if  number in the row above  is not undefined(if there is a field in row) or if it is not 0(empty)
-          if (horizontalRowAbove[filledIndex] != undefined && horizontalRowAbove[filledIndex].value != 0 && currentRow[filledIndex] != undefined) {
-         
-            let divisionResult = horizontalRowAbove[filledIndex].value / currentRow[filledIndex].value;
+          if (currentRow[filledIndex].value < currentRow[filledIndex - 1].value) {
+            let divisionResult = currentRow[filledIndex - 1].value / currentRow[filledIndex].value;
+            //Condition which passes only if the result of division beetwen two number is rounded
             if (divisionResult % 1 == 0) {
               this.score = this.score + currentRow[filledIndex].value * 2;
-              horizontalRowAbove[filledIndex].value = divisionResult;
+              currentRow[filledIndex - 1].value = divisionResult;
               currentRow[filledIndex].value = 0;
               currentRow[filledIndex].positionFilled = false;
-              filledIndexAfterDivision = horizontalRowAbove[filledIndex].index
+              filledIndexAfterDivision = currentRow[filledIndex - 1].index
 
-              currentRow = horizontalRowAbove;
-              rowIndexAfterDivision = boardRowIndex - 1;
+              currentRow = currentRow[filledIndex - 1];
+              rowIndexAfterDivision = boardRowIndex;
             }
+          } else {
+            let divisionResult = currentRow[filledIndex].value / currentRow[filledIndex - 1].value;
+            //Condition which passes only if the result of division beetwen two number is rounded
+            if (divisionResult % 1 == 0) {
+              this.score = this.score + currentRow[filledIndex - 1].value * 2;
+              currentRow[filledIndex].value = divisionResult;
+              currentRow[filledIndex - 1].value = 0;
+              currentRow[filledIndex - 1].positionFilled = false;
+              filledIndexAfterDivision = currentRow[filledIndex].index
+
+              currentRow = currentRow[filledIndex - 1];
+              rowIndexAfterDivision = boardRowIndex;
+            }
+          }
+
+
+        }
+
+
+
+        if (horizontalRowAbove != undefined) {
+          //Condition which passes only if  number in the row above  is not undefined(if there is a field in row) or if it is not 0(empty)
+
+          if (horizontalRowAbove[filledIndex].value != 0 && currentRow[filledIndex] != undefined) {
+            if (horizontalRowAbove[filledIndex].value > currentRow[filledIndex].value) {
+              let divisionResult = horizontalRowAbove[filledIndex].value / currentRow[filledIndex].value;
+
+
+              if (divisionResult % 1 == 0) {
+                this.score = this.score + currentRow[filledIndex].value * 2;
+                horizontalRowAbove[filledIndex].value = divisionResult;
+                currentRow[filledIndex].value = 0;
+                currentRow[filledIndex].positionFilled = false;
+                filledIndexAfterDivision = horizontalRowAbove[filledIndex].index
+
+                currentRow = horizontalRowAbove;
+                rowIndexAfterDivision = boardRowIndex - 1;
+              }
+            } else {
+              let divisionResult = currentRow[filledIndex].value / horizontalRowAbove[filledIndex].value;
+              if (divisionResult % 1 == 0) {
+                this.score = this.score + horizontalRowAbove[filledIndex].value * 2;
+                currentRow[filledIndex].value = divisionResult;
+                horizontalRowAbove[filledIndex].value = 0;
+                horizontalRowAbove[filledIndex].positionFilled = false;
+                filledIndexAfterDivision = currentRow[filledIndex].index
+                currentRow = currentRow;
+                rowIndexAfterDivision = boardRowIndex ;
+              }
+            }
+
           }
         }
 
         if (horizontaRowBeneath != undefined) {
-           //Condition which passes only if  number in the row beneath  is not undefined(if there is a field in row) or if it is not 0(empty)
+          //Condition which passes only if  number in the row beneath  is not undefined(if there is a field in row) or if it is not 0(empty)
           if (horizontaRowBeneath[filledIndex] != undefined && horizontaRowBeneath[filledIndex].value != 0 && currentRow[filledIndex] != undefined) {
 
             let divisionResult = currentRow[filledIndex].value / horizontaRowBeneath[filledIndex].value;
@@ -398,7 +446,9 @@
 
   .drop-row {
     display: flex;
-    flex-wrap: wrap
+    flex-wrap: wrap;
+    max-width: 350px;
+    justify-content: center;
   }
 
   .inserting-row {
