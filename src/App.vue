@@ -84,13 +84,11 @@
   export default {
     data() {
       return {
-        arrayOfNumbersForPlay: [4, 20, 5],
+        arrayOfNumbersForPlay: [],
         gameOver: false,
         keepNumber: 0,
         keepNumberDragStart: false,
-        boardRows: [
-
-        ],
+        boardRows: [],
         boardRow2: [],
         boardRow3: [],
         currentDragedIn: 0,
@@ -287,7 +285,7 @@
                 horizontalRowAbove[filledIndex].positionFilled = false;
                 filledIndexAfterDivision = currentRow[filledIndex].index
                 currentRow = currentRow;
-                rowIndexAfterDivision = boardRowIndex ;
+                rowIndexAfterDivision = boardRowIndex;
               }
             }
 
@@ -297,18 +295,32 @@
         if (horizontaRowBeneath != undefined) {
           //Condition which passes only if  number in the row beneath  is not undefined(if there is a field in row) or if it is not 0(empty)
           if (horizontaRowBeneath[filledIndex] != undefined && horizontaRowBeneath[filledIndex].value != 0 && currentRow[filledIndex] != undefined) {
+            if (currentRow[filledIndex].value > horizontaRowBeneath[filledIndex].value) {
+              let divisionResult = currentRow[filledIndex].value / horizontaRowBeneath[filledIndex].value;
+              if (divisionResult % 1 == 0) {
+                this.score = this.score + horizontaRowBeneath[filledIndex].value * 2;
+                currentRow[filledIndex].value = divisionResult;
+                horizontaRowBeneath[filledIndex].value = 0;
+                horizontaRowBeneath[filledIndex].positionFilled = false;
+                filledIndexAfterDivision = horizontaRowBeneath[filledIndex].index
 
-            let divisionResult = currentRow[filledIndex].value / horizontaRowBeneath[filledIndex].value;
-            if (divisionResult % 1 == 0) {
-              this.score = this.score + horizontaRowBeneath[filledIndex].value * 2;
-              currentRow[filledIndex].value = divisionResult;
-              horizontaRowBeneath[filledIndex].value = 0;
-              horizontaRowBeneath[filledIndex].positionFilled = false;
-              filledIndexAfterDivision = horizontaRowBeneath[filledIndex].index
+                rowIndexAfterDivision = boardRowIndex;
 
-              rowIndexAfterDivision = boardRowIndex;
+              }
+            } else {
+              let divisionResult = horizontaRowBeneath[filledIndex].value / currentRow[filledIndex].value;
+              if (divisionResult % 1 == 0) {
+                this.score = this.score + currentRow[filledIndex].value * 2;
+                horizontaRowBeneath[filledIndex].value = divisionResult;
+                currentRow[filledIndex].value = 0;
+                currentRow[filledIndex].positionFilled = false;
+                filledIndexAfterDivision = currentRow[filledIndex].index
 
+                rowIndexAfterDivision = boardRowIndex + 1;
+
+              }
             }
+
           }
         }
 
